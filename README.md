@@ -106,11 +106,23 @@ public void DestroySafe()
 
 ```
 
-# Limitations
+# Limitations and Remarks
 When using the global object pool functionality, a list of instances is created. When these objects are destroyed through other means than the *DestroySafe* method from *IPoolable* (like a new scene being loaded), then there will be unasigned values. This is what the static *ClearGlobalNulls* method from *ObjectPool* is for. Call it between scene transitions or when you want to make sure that the list is clear of null or missing refs. Use it like this:
 
 ```
 ObjectPool.ClearGlobalNulls();
+```
+
+For scene transitions you can use the *sceneUnloaded* event from *SceneManager*. Just call *ClearGlobalNulls* and enjoy a null-free instance list.
+
+```
+SceneManager.sceneUnloaded += SceneManager_sceneUnloaded;
+
+//implement somewhere in a class
+private void SceneManager_sceneUnloaded(Scene arg0)
+{
+    ObjectPool.ClearGlobalNulls();
+}
 ```
 
 You may have also noticed the *ClearPoolablesBeforeDestroy* method, which is called inside *DestroySafe* on the example class. This is a helper method ment for the case of a pool instance being instatiated as the child of another pool instance. The method will call *DestroySafe* on any *IPoolable* instance in the objects childs, effectively returning them to their respective pools.
