@@ -6,11 +6,6 @@ public class ObjectPoolExample : MonoBehaviour, IPoolable<ObjectPoolExample>
 {
     private ObjectPool<ObjectPoolExample> _pool;
 
-    public GameObject GetGameObject()
-    {
-        return gameObject;
-    }
-
     public void SetPool(ObjectPool<ObjectPoolExample> pool)
     {
         _pool = pool;
@@ -23,8 +18,6 @@ public class ObjectPoolExample : MonoBehaviour, IPoolable<ObjectPoolExample>
 
     public void DestroySafe()
     {
-        ObjectPool.ClearPoolablesBeforeDestroy(gameObject);
-
         StopAllCoroutines();
         if (_pool == null)
         {

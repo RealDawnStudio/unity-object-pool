@@ -13,7 +13,7 @@ public abstract class ObjectPool
     /// <param name="name">The name key of the pool.</param>
     /// <param name="prefab">The object that will be used as the base for every instance.</param>
     /// <param name="preSpawn">Immediatly create the given amount of instances.</param>
-    public static ObjectPool<T> RegisterGlobalPool<T>(string name, T prefab, int preSpawn = 0) where T : class, IPoolable<T>
+    public static ObjectPool<T> RegisterGlobalPool<T>(string name, T prefab, int preSpawn = 0) where T : MonoBehaviour, IPoolable<T>
     {
         var pool = GetGlobalPool<T>(name);
         if (pool == null)
@@ -26,7 +26,7 @@ public abstract class ObjectPool
 
     /// <summary>Get the container object of a global pool, identified by the string <paramref name="name"/>.</summary>
     /// <param name="name">The name key of the pool.</param>
-    public static ObjectPool<T> GetGlobalPool<T>(string name) where T : class, IPoolable<T>
+    public static ObjectPool<T> GetGlobalPool<T>(string name) where T : MonoBehaviour, IPoolable<T>
     {
         if (_globalPools == null)
             _globalPools = new Dictionary<string, ObjectPool>();
@@ -39,7 +39,7 @@ public abstract class ObjectPool
 
     /// <summary>Get the container object of a global pool, identified by the reference <paramref name="prefab"/>.</summary>
     /// <param name="prefab">The reference key of the pool.</param>
-    public static ObjectPool<T> GetGlobalPool<T>(T prefab) where T : class, IPoolable<T>
+    public static ObjectPool<T> GetGlobalPool<T>(T prefab) where T : MonoBehaviour, IPoolable<T>
     {
         if (_globalObjectPools == null)
             _globalObjectPools = new Dictionary<IPoolable, ObjectPool>();
@@ -51,21 +51,6 @@ public abstract class ObjectPool
         }
 
         return (ObjectPool<T>)_globalObjectPools[prefab];
-    }
-
-    /// <summary>Calls DestroySafe on all IPoolable instances that are a child of <paramref name="target"/>.</summary>
-    /// <param name="target">The GameObject to scan through.</param>
-    public static void ClearPoolablesBeforeDestroy(GameObject target)
-    {
-        var poolables = target.GetComponentsInChildren<IPoolable>(true);
-
-        foreach(IPoolable poolable in poolables)
-        {
-            if (poolable.GetGameObject() != target)
-            {
-                poolable.DestroySafe();
-            }
-        }
     }
 
     /// <summary>Rreturn all currently active global pool instances</summary>
@@ -114,7 +99,7 @@ public abstract class ObjectPool
 }
 
 /// <summary>Object pool handler class.</summary>
-public class ObjectPool<T> : ObjectPool where T : class, IPoolable<T>
+public class ObjectPool<T> : ObjectPool where T : MonoBehaviour, IPoolable<T>
 {
     public List<T> Pool { get => _pool; }
     private List<T> _pool;
@@ -194,7 +179,7 @@ public class ObjectPool<T> : ObjectPool where T : class, IPoolable<T>
 
         if (inst != null)
         {
-            inst.GetGameObject().SetActive(true);
+            inst.gameObject.SetActive(true);
             _freePool.Remove(inst);
         }
 
@@ -210,8 +195,7 @@ public class ObjectPool<T> : ObjectPool where T : class, IPoolable<T>
         if (!_pool.Contains(instance))
             return;
 
-        var go = instance.GetGameObject();
-        go.SetActive(false);
+        instance.gameObject.SetActive(false);
         _freePool.Add(instance);
     }
 
@@ -231,9 +215,9 @@ public class ObjectPool<T> : ObjectPool where T : class, IPoolable<T>
     public override void ClearNulls()
     {
         _pool = _pool.Where(f => !(f == null || (f is UnityEngine.Object obj && obj == null))).ToList();
-        _pool = _pool.Where(f => f.GetGameObject() != null).ToList();
+        _pool = _pool.Where(f => f.gameObject != null).ToList();
         _freePool = _freePool.Where(f => !(f == null || (f is UnityEngine.Object obj && obj == null))).ToList();
-        _freePool = _freePool.Where(f => f.GetGameObject() != null).ToList();
+        _freePool = _freePool.Where(f => f.gameObject != null).ToList();
 
         _countInstances = _pool.Count;
     }
