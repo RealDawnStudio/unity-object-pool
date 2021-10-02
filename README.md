@@ -2,7 +2,7 @@
 Please use this script carefully as I cannot guarantee for it being free of bugs. This more of an educational thing to show how it could be done.
 
 # Unity Object Pooling Script
-Object Pooling script to make pooling easier. The handler takes any instance of a class that has implemented the *IPoolable* interface and keeps a list of instantiated instances for reuse. Fetching and returning a pool instance enables and disables the GameObject returned by *GetGameObject* respectively.
+Object Pooling script to make pooling easier. The handler takes any instance of a *MonoBehaviour* that has implemented the *IPoolable* interface and keeps a list of instantiated instances for reuse. Fetching and returning a pool instance enables and disables the GameObject of each pool instance respectively.
 
 The script can work with both scene instances and prefabs. Just drop the reference into an ObjectPool and start instantiating.
 
@@ -18,11 +18,6 @@ public class ObjectPoolExample : MonoBehaviour, IPoolable<ObjectPoolExample>
 {
     private ObjectPool<ObjectPoolExample> _pool;
 
-    public GameObject GetGameObject()
-    {
-        return gameObject;
-    }
-
     public void SetPool(ObjectPool<ObjectPoolExample> pool)
     {
         _pool = pool;
@@ -35,9 +30,8 @@ public class ObjectPoolExample : MonoBehaviour, IPoolable<ObjectPoolExample>
 
     public void DestroySafe()
     {
-        ObjectPool.ClearPoolablesBeforeDestroy(gameObject);
-
-        StopAllCoroutines();
+        //your destroy logic
+            
         if (_pool == null)
         {
             Destroy(gameObject);
