@@ -151,7 +151,7 @@ public class ObjectPool<T> : ObjectPool where T : MonoBehaviour, IPoolable<T>
             _countInstances++;
 
             if (_parent != null)
-                go.transform.SetParent(_parent);
+                go.transform.SetParent(_parent, false);
 
             return inst;
         }
